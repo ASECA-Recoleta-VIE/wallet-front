@@ -1,4 +1,7 @@
 import { User } from '../models/types';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 class AuthService {
   private static users: User[] = [
@@ -16,27 +19,50 @@ class AuthService {
     },
   ];
 
-  login(email: string, password: string): Promise<User | null> {
-    return new Promise((resolve) => {
-      // Mock authentication - in a real app, verify credentials
-      const user = AuthService.users.find(u => u.email === email);
-      resolve(user || null);
-    });
+  async login(email: string, password: string): Promise<User | null> {
+    try {
+      const response = await axios.post(`${API_URL}/api/users/login`, {
+        email,
+        password,
+      });
+      return response.data as User;
+    } catch (error: any) {
+      // eslint-disable-next-line no-console
+      console.error('Login error:', error);
+      let errorMessage = 'Login failed. Please try again.';
+      if (error?.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (typeof error.response.data === 'object' && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      throw new Error(errorMessage);
+    }
   }
 
-  register(email: string, name: string, password: string): Promise<User> {
-    return new Promise((resolve) => {
-      // In a real app, verify email doesn't exist, hash password, etc.
-      const newUser: User = {
-        id: `${AuthService.users.length + 1}`,
+  async register(email: string, name: string, password: string): Promise<User> {
+    try {
+      const response = await axios.post(`${API_URL}/api/users/register`, {
+        fullName: name,
         email,
-        name,
-        walletId: `wallet${AuthService.users.length + 1}`,
-      };
-
-      AuthService.users.push(newUser);
-      resolve(newUser);
-    });
+        password,
+      });
+      // Asumimos que el backend devuelve el usuario creado en el body
+      return response.data as User;
+    } catch (error: any) {
+      // eslint-disable-next-line no-console
+      console.error('Registration error:', error);
+      let errorMessage = 'Registration failed. Please try again.';
+      if (error?.response?.data) {
+        if (typeof error.response.data === 'string') {
+          errorMessage = error.response.data;
+        } else if (typeof error.response.data === 'object' && error.response.data.message) {
+          errorMessage = error.response.data.message;
+        }
+      }
+      throw new Error(errorMessage);
+    }
   }
 
   getCurrentUser(): Promise<User | null> {
