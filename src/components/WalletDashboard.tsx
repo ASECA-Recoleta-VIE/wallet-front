@@ -1,39 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import WalletService from '../services/WalletService';
 import TransactionService from '../services/TransactionService';
 import { Transaction, Wallet } from '../models/types';
 import TransactionHistory from './TransactionHistory';
 import AddFunds from './AddFunds';
 import RequestDebin from './RequestDebin';
+import { AuthContext } from '../providers/AuthProvider';
 
-interface WalletDashboardProps {
-  walletId: string;
-}
-
-const WalletDashboard: React.FC<WalletDashboardProps> = ({ walletId }) => {
-  const [wallet, setWallet] = useState<Wallet | null>(null);
+const WalletDashboard: React.FC = () => {
+  const { wallet } = useContext(AuthContext);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   const fetchData = async () => {
-    try {
-      setLoading(true);
-      const walletData = await WalletService.getWalletById(walletId);
-      const transactionsData = await TransactionService.getTransactionsByWalletId(walletId);
+    // try {
 
-      setWallet(walletData);
-      setTransactions(transactionsData);
-    } catch (error) {
-      console.error('Failed to fetch wallet data:', error);
-    } finally {
-      setLoading(false);
-    }
+    //   setLoading(true);
+    //   const transactionsData = await TransactionService.getTransactionsByWalletId(wallet?.id || '');
+
+    //   setTransactions(transactionsData);
+    // } catch (error) {
+    //   console.error('Failed to fetch wallet data:', error);
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   useEffect(() => {
     fetchData();
-  }, [walletId]);
+  }, []);
 
   const handleTransactionComplete = () => {
     fetchData();
@@ -88,7 +84,7 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({ walletId }) => {
         {activeTab === 'addFunds' && (
           <div>
             <AddFunds
-              walletId={walletId}
+              walletId={wallet?.id || ''}
               onTransactionComplete={handleTransactionComplete}
             />
           </div>
@@ -97,7 +93,7 @@ const WalletDashboard: React.FC<WalletDashboardProps> = ({ walletId }) => {
         {activeTab === 'requestDebin' && (
           <div>
             <RequestDebin
-              walletId={walletId}
+              walletId={wallet?.id || ''}
               onTransactionComplete={handleTransactionComplete}
             />
           </div>

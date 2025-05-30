@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../providers/AuthProvider'; // Asegurate que la ruta sea correcta
 
-interface LoginProps {
-  onLogin: (email: string, password: string) => Promise<boolean>;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC = () => {
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,14 +17,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      const success = await onLogin(email, password);
+      const success = await login(email, password);
       if (!success) {
         setError('Invalid email or password');
+      } else {
+        navigate('/wallet');
       }
-    } catch (err) {
-      setError('Login failed. Please try again.');
-      // eslint-disable-next-line no-console
-      console.error(err);
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

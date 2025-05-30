@@ -1,33 +1,20 @@
-import { User } from '../models/types';
 import axios from 'axios';
+import { User } from '../models/types';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 class AuthService {
-  private static users: User[] = [
-    {
-      id: '1',
-      email: 'user1@example.com',
-      name: 'User One',
-      walletId: 'wallet1',
-    },
-    {
-      id: '2',
-      email: 'user2@example.com',
-      name: 'User Two',
-      walletId: 'wallet2',
-    },
-  ];
-
   async login(email: string, password: string): Promise<User | null> {
     try {
-      const response = await axios.post(`${API_URL}/api/users/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${API_URL}/api/users/login`,
+        { email, password },
+        { withCredentials: true } // para enviar y recibir cookies
+      );
+      console.log('response', response);
+      
       return response.data as User;
     } catch (error: any) {
-      // eslint-disable-next-line no-console
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';
       if (error?.response?.data) {
@@ -43,15 +30,17 @@ class AuthService {
 
   async register(email: string, name: string, password: string): Promise<User> {
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`, {
-        fullName: name,
-        email,
-        password,
-      });
-      // Asumimos que el backend devuelve el usuario creado en el body
+      const response = await axios.post(
+        `${API_URL}/api/users/register`,
+        {
+          fullName: name,
+          email,
+          password,
+        },
+        { withCredentials: true }
+      );
       return response.data as User;
     } catch (error: any) {
-      // eslint-disable-next-line no-console
       console.error('Registration error:', error);
       let errorMessage = 'Registration failed. Please try again.';
       if (error?.response?.data) {
@@ -65,20 +54,24 @@ class AuthService {
     }
   }
 
-  getCurrentUser(): Promise<User | null> {
-    // In a real app, verify a token from localStorage or cookies
-    return Promise.resolve(AuthService.users[0]); // Mock for demo purposes
+  async getCurrentUser(): Promise<User | null> {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/me`, {
+        withCredentials: true,
+      });
+      return response.data as User;
+    } catch (error) {
+      console.error('Failed to get current user:', error);
+      return null;
+    }
   }
 
-  getUserByEmail(email: string): Promise<User | null> {
-    return Promise.resolve(AuthService.users.find(u => u.email === email) || null);
-  }
-
-  getUserById(id: string): Promise<User | null> {
-    return Promise.resolve(AuthService.users.find(u => u.id === id) || null);
-  }
-  logout(): Promise<void> {
-    return Promise.resolve(); // In a real app, clear tokens/cookies
+  async logout(): Promise<void> {
+    try {
+      await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   }
 }
 
