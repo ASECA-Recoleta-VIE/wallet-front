@@ -1,30 +1,31 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import WalletService from '../services/WalletService';
 import TransactionService from '../services/TransactionService';
-import { Transaction, Wallet } from '../models/types';
+import { Transaction, WalletResponse } from '../models/types';
 import TransactionHistory from './TransactionHistory';
 import AddFunds from './AddFunds';
 import RequestDebin from './RequestDebin';
-import { AuthContext } from '../providers/AuthProvider';
 
 const WalletDashboard: React.FC = () => {
-  const { wallet } = useContext(AuthContext);
+  const [wallet, setWallet] = useState<WalletResponse | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   const fetchData = async () => {
-    // try {
-
-    //   setLoading(true);
-    //   const transactionsData = await TransactionService.getTransactionsByWalletId(wallet?.id || '');
-
-    //   setTransactions(transactionsData);
-    // } catch (error) {
-    //   console.error('Failed to fetch wallet data:', error);
-    // } finally {
-    //   setLoading(false);
-    // }
+    try {
+      setLoading(true);
+      const walletData = await WalletService.getWallet();
+      setWallet(walletData);
+      // Si querés traer transacciones, hacelo acá también
+      // const transactionsData = await TransactionService.getTransactionsByWalletId(walletData.id);
+      // setTransactions(transactionsData);
+    } catch (error) {
+      console.error('Failed to fetch wallet data:', error);
+      setWallet(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -84,7 +85,7 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'addFunds' && (
           <div>
             <AddFunds
-              walletId={wallet?.id || ''}
+              walletId={''} // No hay id en WalletResponse, ajustar si es necesario
               onTransactionComplete={handleTransactionComplete}
             />
           </div>
@@ -93,7 +94,7 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'requestDebin' && (
           <div>
             <RequestDebin
-              walletId={wallet?.id || ''}
+              walletId={''} // No hay id en WalletResponse, ajustar si es necesario
               onTransactionComplete={handleTransactionComplete}
             />
           </div>
