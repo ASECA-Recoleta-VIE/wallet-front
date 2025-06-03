@@ -4,16 +4,13 @@ import { User } from '../models/types';
 const API_URL = import.meta.env.VITE_API_URL;
 
 class AuthService {
-  async login(email: string, password: string): Promise<User | null> {
+  async login(email: string, password: string): Promise<boolean> {
     try {
       const response = await axios.post(
         `${API_URL}/api/users/login`,
-        { email, password },
-        { withCredentials: true } // para enviar y recibir cookies
+        { email, password }
       );
-      console.log('response', response);
-      
-      return response.data as User;
+      return response.data === 'login-success';
     } catch (error: any) {
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';

@@ -1,41 +1,66 @@
-import { Wallet } from '../models/types';
-import axios from 'axios';
+import { WalletResponse, TransferRequest, TransferResponse, HistoryResponse, EmailTransactionRequest } from '../models/types';
+import axios from '../interceptors/axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 class WalletService {
-
-  getWalletByUserId(userId: string): Promise<Wallet[] | null> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await axios.get(`${API_URL}/api/wallets/${userId}`, { withCredentials: true });
-        resolve(response.data as Wallet[]);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async getWallet(): Promise<WalletResponse> {
+    try {
+      const response = await axios.get(`${API_URL}/wallet`);
+      return response.data as WalletResponse;
+    } catch (error: any) {
+      console.error('Failed to get wallet:', error);
+      throw new Error(error.response?.data || 'Failed to get wallet');
+    }
   }
 
-  getWalletById(walletId: string): Promise<Wallet | null> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await axios.get(`${API_URL}/api/wallets/${walletId}`, { withCredentials: true });
-        resolve(response.data as Wallet);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async deposit(request: EmailTransactionRequest): Promise<WalletResponse> {
+    try {
+      const response = await axios.post(
+        `${API_URL}/deposit`,
+        request
+      );
+      return response.data as WalletResponse;
+    } catch (error: any) {
+      console.error('Deposit failed:', error);
+      throw new Error(error.response?.data || 'Deposit failed');
+    }
   }
 
-  updateBalance(walletId: string, amount: number): Promise<Wallet | null> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const response = await axios.put(`${API_URL}/api/wallets/${walletId}`, { amount }, { withCredentials: true });
-        resolve(response.data as Wallet);
-      } catch (error) {
-        reject(error);
-      }
-    });
+  async withdraw(request: EmailTransactionRequest): Promise<WalletResponse> {
+    try {
+      const response = await axios.post(
+        `${API_URL}/withdraw`,
+        request
+      );
+      return response.data as WalletResponse;
+    } catch (error: any) {
+      console.error('Withdrawal failed:', error);
+      throw new Error(error.response?.data || 'Withdrawal failed');
+    }
+  }
+
+  async transfer(request: TransferRequest): Promise<TransferResponse> {
+    try {
+      const response = await axios.post(
+        `${API_URL}/transfer`,
+        request
+      );
+      return response.data as TransferResponse;
+    } catch (error: any) {
+      console.error('Transfer failed:', error);
+      throw new Error(error.response?.data || 'Transfer failed');
+    }
+  }
+
+  async getHistory(): Promise<HistoryResponse[]> {
+    try {
+      const response = await axios.get(`${API_URL}/history`);
+      return response.data as HistoryResponse[];
+    } catch (error: any) {
+      console.error('Failed to get history:', error);
+      throw new Error(error.response?.data || 'Failed to get history');
+    }
   }
 }
 

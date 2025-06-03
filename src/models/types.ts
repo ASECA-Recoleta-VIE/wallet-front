@@ -5,6 +5,39 @@ export interface User {
   walletId: string;
 }
 
+export interface WalletResponse {
+  name: string;
+  balance: number;
+  currency: string;
+}
+
+export interface TransferRequest {
+  toEmail: string;
+  amount: number;
+  description: string;
+}
+
+export interface TransferResponse {
+  fromWallet: WalletResponse;
+  toWallet: WalletResponse;
+  amount: number;
+  description: string;
+  timestamp: string;
+}
+
+export interface HistoryResponse {
+  type: string;
+  amount: number;
+  description: string;
+  timestamp: string;
+  status: string;
+}
+
+export interface EmailTransactionRequest {
+  amount: number;
+  description: string;
+}
+
 export interface Wallet {
   id: string;
   userId: string;
