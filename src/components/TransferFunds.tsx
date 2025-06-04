@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import WalletService from '../services/WalletService';
 
-interface AddFundsProps {
-  walletId: string;
+interface TransferFundsProps {
   onTransactionComplete: () => void;
 }
 
-const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) => {
+const TransferFunds: React.FC<TransferFundsProps> = ({ onTransactionComplete }) => {
+  const [toEmail, setToEmail] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
@@ -15,6 +15,11 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!toEmail) {
+      setError('Recipient email is required');
+      return;
+    }
 
     if (!amount) {
       setError('Amount is required');
@@ -36,15 +41,16 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
     setError('');
 
     try {
-      await WalletService.deposit({
+      await WalletService.transfer({
+        toEmail,
         amount: amountNum,
         description
       });
 
       setSuccess(true);
       onTransactionComplete();
-    } catch (err) {
-      setError('Transaction failed. Please try again later.');
+    } catch (err: any) {
+      setError(err.message || 'Transfer failed. Please try again later.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,19 +61,32 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
     <div className="max-w-md mx-auto">
       {success ? (
         <div className="bg-green-50 border border-green-400 rounded p-4 text-center">
-          <h3 className="text-green-800 font-semibold text-lg mb-2">Funds added successfully!</h3>
+          <h3 className="text-green-800 font-semibold text-lg mb-2">Transfer successful!</h3>
           <button
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
             onClick={() => setSuccess(false)}
           >
-            Add more funds
+            Make another transfer
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Add Funds to Your Wallet</h2>
+          <h2 className="text-xl font-semibold mb-4">Transfer Funds</h2>
 
           {error && <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+
+          <div className="mb-4">
+            <label htmlFor="toEmail" className="block text-gray-700 mb-2">Recipient Email</label>
+            <input
+              type="email"
+              id="toEmail"
+              value={toEmail}
+              onChange={(e) => setToEmail(e.target.value)}
+              placeholder="Enter recipient's email"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
           <div className="mb-4">
             <label htmlFor="amount" className="block text-gray-700 mb-2">Amount</label>
@@ -102,7 +121,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
             disabled={loading}
             className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
           >
-            {loading ? 'Processing...' : 'Add Funds'}
+            {loading ? 'Processing...' : 'Transfer Funds'}
           </button>
         </form>
       )}
@@ -110,4 +129,4 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
   );
 };
 
-export default AddFunds;
+export default TransferFunds; 
