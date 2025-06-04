@@ -51,18 +51,6 @@ class AuthService {
     }
   }
 
-  async getCurrentUser(): Promise<User | null> {
-    try {
-      const response = await axios.get(`${API_URL}/api/users/me`, {
-        withCredentials: true,
-      });
-      return response.data as User;
-    } catch (error) {
-      console.error('Failed to get current user:', error);
-      return null;
-    }
-  }
-
   async logout(): Promise<void> {
     try {
       await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true });
