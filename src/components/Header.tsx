@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../providers/AuthProvider'; 
 
 const Header: React.FC = () => {
-  const { isAuthenticated, user, logout } = useContext(AuthContext);
+  const { isAuthenticated, logout } = useContext(AuthContext);
 
   return (
     <header className="bg-white shadow-md py-4 px-6">
@@ -15,15 +15,11 @@ const Header: React.FC = () => {
         <nav className="space-x-4 flex items-center">
           {isAuthenticated ? (
             <>
-              {user && (
-                <span className="text-gray-600 font-medium">
-                  Welcome, {user.name}
-                </span>
-              )}
               <Link to="/wallet" className="text-gray-700 hover:text-blue-500">My Wallet</Link>
               <Link to="/transactions" className="text-gray-700 hover:text-blue-500">Transactions</Link>
               <button
                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                data-testid="logout-btn"
                 onClick={logout}
               >
                 Logout
