@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import WalletService from '../services/WalletService';
-import TransactionService from '../services/TransactionService';
-import { Transaction, WalletResponse } from '../models/types';
+import { HistoryResponse, WalletResponse } from '../models/types';
 import TransactionHistory from './TransactionHistory';
 import AddFunds from './AddFunds';
 import RequestDebin from './RequestDebin';
+import TransferFunds from './TransferFunds';
 
 const WalletDashboard: React.FC = () => {
   const [wallet, setWallet] = useState<WalletResponse | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<HistoryResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const walletData = await WalletService.getWallet();
+      const [walletData, historyData] = await Promise.all([
+        WalletService.getWallet(),
+        WalletService.getHistory()
+      ]);
       setWallet(walletData);
-      // Si querés traer transacciones, hacelo acá también
-      // const transactionsData = await TransactionService.getTransactionsByWalletId(walletData.id);
-      // setTransactions(transactionsData);
+      setTransactions(historyData);
     } catch (error) {
       console.error('Failed to fetch wallet data:', error);
       setWallet(null);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
@@ -68,6 +70,12 @@ const WalletDashboard: React.FC = () => {
           Add Funds
         </button>
         <button
+          className={`px-4 py-2 font-medium ${activeTab === 'transfer' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
+          onClick={() => setActiveTab('transfer')}
+        >
+          Transfer
+        </button>
+        <button
           className={`px-4 py-2 font-medium ${activeTab === 'requestDebin' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('requestDebin')}
         >
@@ -85,7 +93,15 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'addFunds' && (
           <div>
             <AddFunds
-              walletId={''} // No hay id en WalletResponse, ajustar si es necesario
+              walletId=""
+              onTransactionComplete={handleTransactionComplete}
+            />
+          </div>
+        )}
+
+        {activeTab === 'transfer' && (
+          <div>
+            <TransferFunds
               onTransactionComplete={handleTransactionComplete}
             />
           </div>
@@ -94,7 +110,7 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'requestDebin' && (
           <div>
             <RequestDebin
-              walletId={''} // No hay id en WalletResponse, ajustar si es necesario
+              walletId=""
               onTransactionComplete={handleTransactionComplete}
             />
           </div>

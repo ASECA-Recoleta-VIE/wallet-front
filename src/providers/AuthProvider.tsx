@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState, useMemo } from 'react';
 import AuthService from '../services/AuthService';
+import WalletService from '../services/WalletService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -38,7 +39,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    setLoading(false);
+    const checkAuth = async () => {
+      try {
+        // Try to fetch wallet data - if successful, user is authenticated
+        await WalletService.getWallet();
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Failed to check authentication status:', error);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const contextValue = useMemo(() => ({
