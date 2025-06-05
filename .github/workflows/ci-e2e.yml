@@ -25,6 +25,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      wallet-back:
+        image: ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/walletdb
+          SPRING_DATASOURCE_USERNAME: walletuser
+          SPRING_DATASOURCE_PASSWORD: walletpassword
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd "curl -f http://localhost:8080/actuator/health || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout frontend
         uses: actions/checkout@v4
@@ -48,33 +62,8 @@ jobs:
       - name: Wait for frontend to be ready
         uses: jakejarvis/wait-action@v0.1.0
         with:
-          url: http://localhost:5173
+          url: http://localhost:4173
           timeout: 60
-
-      - name: Checkout backend
-        uses: actions/checkout@v4
-        with:
-          repository: ASECA-Recoleta-VIE/wallet-back
-          path: wallet-back
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: temurin
-
-      - name: Build backend
-        working-directory: wallet-back
-        run: ./gradlew build
-
-      - name: Start backend
-        working-directory: wallet-back
-        run: ./gradlew bootRun &
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/walletdb
-          SPRING_DATASOURCE_USERNAME: walletuser
-          SPRING_DATASOURCE_PASSWORD: walletpassword
 
       - name: Wait for backend to be ready
         uses: jakejarvis/wait-action@v0.1.0
