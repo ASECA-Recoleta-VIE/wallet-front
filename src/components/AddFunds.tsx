@@ -42,7 +42,9 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
       });
 
       setSuccess(true);
-      onTransactionComplete();
+      setTimeout(() => {
+        onTransactionComplete();
+      }, 1500);
     } catch (err) {
       setError('Transaction failed. Please try again later.');
       console.error(err);
@@ -54,7 +56,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
   return (
     <div className="max-w-md mx-auto">
       {success ? (
-        <div className="bg-green-50 border border-green-400 rounded p-4 text-center">
+        <div className="bg-green-50 border border-green-400 rounded p-4 text-center" data-testid="addfunds-success">
           <h3 className="text-green-800 font-semibold text-lg mb-2">Funds added successfully!</h3>
           <button
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -74,6 +76,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
             <input
               type="number"
               id="amount"
+              data-testid="addfunds-amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
@@ -89,6 +92,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
             <input
               type="text"
               id="description"
+              data-testid="addfunds-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter description"
@@ -99,6 +103,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
 
           <button
             type="submit"
+            data-testid="addfunds-submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
           >

@@ -37,7 +37,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
             </thead>
             <tbody>
               {transactions.map((transaction, index) => (
-                <tr key={index} className="border-t">
+                <tr key={index} className="border-t" data-testid="transaction-row">
                   <td className="py-2 px-4">{formatDate(transaction.timestamp)}</td>
                   <td className="py-2 px-4">{transaction.type}</td>
                   <td className="py-2 px-4 text-green-600">
