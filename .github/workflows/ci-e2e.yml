@@ -1,0 +1,86 @@
+name: Frontend E2E CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: walletdb
+          POSTGRES_USER: walletuser
+          POSTGRES_PASSWORD: walletpassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout frontend
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Start frontend server
+        run: npm run preview &
+        env:
+          NODE_ENV: test
+
+      - name: Wait for frontend to be ready
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          url: http://localhost:5173
+          timeout: 60
+
+      - name: Checkout backend
+        uses: actions/checkout@v4
+        with:
+          repository: ASECA-Recoleta-VIE/wallet-back
+          path: wallet-back
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Build backend
+        working-directory: wallet-back
+        run: ./gradlew build
+
+      - name: Start backend
+        working-directory: wallet-back
+        run: ./gradlew bootRun &
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/walletdb
+          SPRING_DATASOURCE_USERNAME: walletuser
+          SPRING_DATASOURCE_PASSWORD: walletpassword
+
+      - name: Wait for backend to be ready
+        uses: jakejarvis/wait-action@v0.1.0
+        with:
+          url: http://localhost:8080/actuator/health
+          timeout: 60
+
+      - name: Run Cypress tests
+        run: npx cypress run
