@@ -7,6 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false;
 });
 
+
 describe('Transferencia de dinero', () => {
   beforeEach(() => {
     cy.visit('/login');
