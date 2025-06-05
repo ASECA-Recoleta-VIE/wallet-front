@@ -2,11 +2,10 @@ import { useState } from 'react';
 import WalletService from '../services/WalletService';
 
 interface AddFundsProps {
-  walletId: string;
   onTransactionComplete: () => void;
 }
 
-const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) => {
+const AddFunds: React.FC<AddFundsProps> = ({ onTransactionComplete }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
