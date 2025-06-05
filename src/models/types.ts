@@ -5,6 +5,7 @@ export interface User {
   walletId: string;
 }
 
+
 export interface WalletResponse {
   id: string;
   name: string;
