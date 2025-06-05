@@ -51,6 +51,7 @@ const Login: React.FC = () => {
           <input
             type="email"
             id="email"
+            data-testid="login-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
@@ -68,6 +69,7 @@ const Login: React.FC = () => {
             <input
               type={showPassword ? 'text' : 'password'}
               id="password"
+              data-testid="login-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Your password"
@@ -93,6 +95,7 @@ const Login: React.FC = () => {
 
         <button
           type="submit"
+          data-testid="login-submit"
           disabled={loading}
           className="w-full bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300 transition-colors mb-4"
         >
