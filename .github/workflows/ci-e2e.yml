@@ -54,6 +54,9 @@ jobs:
       - name: Login to GitHub Container Registry (GHCR)
         run: echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u Pagliaricci --password-stdin
 
+      - name: Pull wallet-back image (verificación)
+        run: docker pull ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
+
       - name: Start wallet-back container
         run: |
           docker run -d --name wallet-back \
