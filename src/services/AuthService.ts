@@ -58,6 +58,26 @@ class AuthService {
       console.error('Logout failed:', error);
     }
   }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/email/${email}`);
+      return response.data as User;
+    } catch (error) {
+      console.error('Failed to get user by email:', error);
+      return null;
+    }
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/${id}`);
+      return response.data as User;
+    } catch (error) {
+      console.error('Failed to get user by id:', error);
+      return null;
+    }
+  }
 }
 
 export default new AuthService();

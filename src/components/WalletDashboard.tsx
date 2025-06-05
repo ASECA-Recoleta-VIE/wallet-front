@@ -93,7 +93,6 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'addFunds' && (
           <div>
             <AddFunds
-              walletId=""
               onTransactionComplete={handleTransactionComplete}
             />
           </div>
