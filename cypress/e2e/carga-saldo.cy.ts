@@ -7,42 +7,37 @@ Cypress.on('log:added', (options) => {
   console.log(`[CYPRESS LOG] ${options.name}: ${options.message}`);
 });
 
+let email = ''; // Variable global al describe
+
 describe('Carga de saldo', () => {
-  beforeEach(() => {
+  before(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-
-    // Verificar que el backend responde antes de empezar
-    // Visita login
-    cy.visit('/login');
+    cy.visit('/register');
     cy.document().its('readyState').should('eq', 'complete');
+    cy.get('body').should('contain.text', 'Register');
+    cy.wait(3000);
+    cy.url().should('include', '/register');
+    email = `testuser+${Date.now()}@mail.com`;
+  });
+
+  it('permite registrar un usuario nuevo', () => {
+    cy.get('[data-testid="register-name"]').type('Test User');
+    cy.get('[data-testid="register-email"]').type(email);
+    cy.get('[data-testid="register-password"]').type('Password1!');
+    cy.get('[data-testid="register-confirm-password"]').type('Password1!');
+    cy.get('[data-testid="register-submit"]').click();
+
+    cy.contains('Registration successful!', { timeout: 10000 }).should('be.visible');
+    cy.wait(3000);
     cy.url().should('include', '/login');
-    cy.get('body').should('contain.text', 'Login');
 
-    cy.get('[data-testid="login-email"]', { timeout: 10000 })
-      .should('be.visible')
-      .type('pablopagliaricci@gmail.com');
+    cy.get('[data-testid="login-email"]').type(email);
+    cy.get('[data-testid="login-password"]').type('Password1!');
+    cy.get('[data-testid="login-submit"]').click();
 
-    cy.get('[data-testid="login-password"]', { timeout: 10000 })
-      .should('be.visible')
-      .type('Password1!');
+    cy.url({ timeout: 10000 }).should('include', '/wallet');
 
-    cy.get('[data-testid="login-submit"]', { timeout: 10000 }).click();
-
-    // Captura antes de verificar el toast
-    cy.screenshot('post-login-submit');
-
-    // Verificamos si aparece el mensaje (sin fallar si no está)
-    cy.get('body', { timeout: 10000 }).then(($body) => {
-      if ($body.text().includes('Login Successfully!')) {
-        cy.log('✅ Login success message visible');
-      } else {
-        cy.log('❌ Login success message NO visible');
-        cy.screenshot('login-toast-fail');
-      }
-    });
-
-    // Captura por si no aparece botón Add Funds
     cy.contains('Add Funds', { timeout: 10000 })
       .should('be.visible')
       .screenshot('add-funds-visible')
@@ -50,11 +45,16 @@ describe('Carga de saldo', () => {
   });
 
   it('permite cargar saldo correctamente', () => {
+    cy.visit('/login');
+
+    cy.get('[data-testid="login-email"]').type(email);
+    cy.get('[data-testid="login-password"]').type('Password1!');
+    cy.get('[data-testid="login-submit"]').click();
+
     cy.get('[data-testid="addfunds-amount"]').type('100');
     cy.get('[data-testid="addfunds-description"]').type('Recarga test');
     cy.get('[data-testid="addfunds-submit"]').click();
 
-    // Verificamos que aparezca el toast
     cy.get('body', { timeout: 10000 }).then(($body) => {
       if ($body.text().includes('Funds added successfully!')) {
         cy.log('✅ Funds added toast visible');
