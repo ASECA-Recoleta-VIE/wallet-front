@@ -20,6 +20,8 @@ describe('Carga de saldo', () => {
     // Verificamos redirección a /wallet
     cy.url({ timeout: 10000 }).should('include', '/wallet');
 
+    cy.contains('Invalid credentials').should('not.exist');
+
     // Accedemos a la funcionalidad de "Add Funds"
     cy.contains('Add Funds', { timeout: 10000 }).should('be.visible').click();
   });
