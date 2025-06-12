@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import AuthService from '../services/AuthService';
 import { useNavigate, Link } from 'react-router-dom';
+import { showErrorToast, showSuccessToast } from '../utils/toast';
+import FormInput from './FormInput';
 
 const Register: React.FC = () => {
   const [name, setName] = useState('');
@@ -9,31 +11,67 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const navigate = useNavigate();
+
+  const validate = () => {
+    let valid = true;
+    if (!name) {
+      setNameError('Full Name is required');
+      valid = false;
+    } else {
+      setNameError('');
+    }
+    if (!email) {
+      setEmailError('Email is required');
+      valid = false;
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setEmailError('Please enter a valid email address');
+        valid = false;
+      } else {
+        setEmailError('');
+      }
+    }
+    if (!password) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
+    if (!confirmPassword) {
+      setConfirmPasswordError('Confirm Password is required');
+      valid = false;
+    } else if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      valid = false;
+    } else {
+      setConfirmPasswordError('');
+    }
+    return valid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
+    setShowErrors(true);
+    if (!validate()) {
       return;
     }
-
     setLoading(true);
-
     try {
       await AuthService.register(email, name, password);
-      setSuccess('¡Registro exitoso! Redirigiendo al login...');
+      showSuccessToast('Registration successful! Redirecting to login...');
       setTimeout(() => {
         navigate('/login');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      showErrorToast(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -47,130 +85,109 @@ const Register: React.FC = () => {
       >
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Create an Account</h2>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm text-center">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4 text-sm text-center">
-            {success}
-          </div>
-        )}
-
-        <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 mb-1 font-medium">
-            Full Name
-          </label>
-          <input
+        <FormInput
+          id="name"
+          label="Full Name"
             type="text"
-            id="name"
-            data-testid="register-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your full name"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          showError={showErrors}
+          error={nameError}
+          data-testid="register-name"
             autoComplete="name"
           />
-        </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 mb-1 font-medium">
-            Email
-          </label>
-          <input
+        <FormInput
+          id="email"
+          label="Email"
             type="email"
-            id="email"
-            data-testid="register-email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email"
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          showError={showErrors}
+          error={emailError}
+          data-testid="register-email"
             autoComplete="email"
           />
-        </div>
 
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700 mb-1 font-medium">
-            Password
-          </label>
-          <div className="relative">
-            <input
+        <div className="mb-4 relative">
+          <FormInput
+            id="password"
+            label="Password"
               type={showPassword ? 'text' : 'password'}
-              id="password"
-              data-testid="register-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password"
+            placeholder="Your password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+            showError={showErrors}
+            error={passwordError}
+            data-testid="register-password"
               autoComplete="new-password"
+            className="pr-10"
             />
             <button
               type="button"
               tabIndex={-1}
-              className="absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none"
+            className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
               {showPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m1.875-2.25A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0 1.657-.403 3.22-1.125 4.575m-1.875 2.25A9.956 9.956 0 0112 21c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m1.875-2.25A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0-1.657-.403-3.22-1.125-4.575m-1.875 2.25A9.956 9.956 0 0112 21c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575" /></svg>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-6 0a6 6 0 1112 0 6 6 0 01-12 0z" /></svg>
               )}
             </button>
-          </div>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="confirmPassword" className="block text-gray-700 mb-1 font-medium">
-            Confirm Password
-          </label>
-          <div className="relative">
-            <input
+        <div className="mb-4 relative">
+          <FormInput
+            id="confirmPassword"
+            label="Confirm Password"
               type={showConfirmPassword ? 'text' : 'password'}
-              id="confirmPassword"
-              data-testid="register-confirm-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm your password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+            showError={showErrors}
+            error={confirmPasswordError}
+            data-testid="register-confirm-password"
               autoComplete="new-password"
+            className="pr-10"
             />
             <button
               type="button"
               tabIndex={-1}
-              className="absolute inset-y-0 right-2 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none"
+            className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
               aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
             >
               {showConfirmPassword ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m1.875-2.25A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0 1.657-.403 3.22-1.125 4.575m-1.875 2.25A9.956 9.956 0 0112 21c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575m1.875-2.25A9.956 9.956 0 0112 3c5.523 0 10 4.477 10 10 0-1.657-.403-3.22-1.125-4.575m-1.875 2.25A9.956 9.956 0 0112 21c-5.523 0-10-4.477-10-10 0-1.657.403-3.22 1.125-4.575" /></svg>
               ) : (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm-6 0a6 6 0 1112 0 6 6 0 01-12 0z" /></svg>
               )}
             </button>
-          </div>
         </div>
 
         <button
           type="submit"
-          data-testid="register-submit"
           disabled={loading}
-          className="w-full bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300 transition-colors mb-4"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          data-testid="register-submit"
         >
-          {loading ? 'Registering...' : 'Register'}
+          {loading ? 'Creating Account...' : 'Create Account'}
         </button>
 
-        <div className="text-center text-sm text-gray-600">
+        <p className="mt-4 text-center text-gray-600">
           Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 hover:underline font-medium">
-            Log In
+          <Link to="/login" className="text-blue-600 hover:text-blue-700">
+            Log in here
           </Link>
-        </div>
+        </p>
       </form>
     </div>
   );

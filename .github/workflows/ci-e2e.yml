@@ -29,18 +29,29 @@ jobs:
       - name: Checkout frontend
         uses: actions/checkout@v4
 
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install frontend dependencies
-        run: npm ci
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
+
+      - name: Install Cypress
+        run: npx cypress install
 
       - name: Build frontend
         run: npm run build
 
-      - name: Start frontend server
+      - name: Start frontend (Vite)
         run: npm run preview &
         env:
           NODE_ENV: test
@@ -51,36 +62,37 @@ jobs:
           url: http://localhost:5173
           timeout: 60
 
-      - name: Checkout backend
-        uses: actions/checkout@v4
-        with:
-          repository: ASECA-Recoleta-VIE/wallet-back
-          path: wallet-back
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GitHub Container Registry (GHCR)
+        run: echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: temurin
+      - name: Pull wallet-back image
+        run: docker pull ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
-      - name: Build backend
-        working-directory: wallet-back
-        run: ./gradlew build
+      - name: Start wallet-back container
+        run: |
+          docker run -d --name wallet-back \
+            --network host \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/walletdb \
+            -e SPRING_DATASOURCE_USERNAME=walletuser \
+            -e SPRING_DATASOURCE_PASSWORD=walletpassword \
+            -p 8080:8080 \
+            ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
-      - name: Start backend
-        working-directory: wallet-back
-        run: ./gradlew bootRun &
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/walletdb
-          SPRING_DATASOURCE_USERNAME: walletuser
-          SPRING_DATASOURCE_PASSWORD: walletpassword
+      - name: Print wallet-back logs (debug)
+        run: docker logs wallet-back || true
 
       - name: Wait for backend to be ready
-        uses: jakejarvis/wait-action@v0.1.0
-        with:
-          url: http://localhost:8080/actuator/health
-          timeout: 60
+        run: |
+          echo "Waiting for backend to respond to login..."
+          for i in {1..10}; do
+            curl -X POST http://localhost:8080/auth/login \
+              -H "Content-Type: application/json" \
+              -d '{"email":"pablopagliaricci@gmail.com", "password":"Password1!"}' \
+              --fail && break
+            echo "Retrying... ($i)"
+            docker logs wallet-back || true
+            sleep 5
+          done
 
       - name: Run Cypress tests
         run: npx cypress run

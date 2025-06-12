@@ -1,52 +1,60 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import WalletService from '../services/WalletService';
+import { showErrorToast, showSuccessToast } from '../utils/toast';
+import FormInput from './FormInput';
 
 interface AddFundsProps {
-  walletId: string;
   onTransactionComplete: () => void;
 }
 
-const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) => {
+const AddFunds: React.FC<AddFundsProps> = ({ onTransactionComplete }) => {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+  const [amountError, setAmountError] = useState('');
+  const [descriptionError, setDescriptionError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const validate = () => {
+    let valid = true;
     if (!amount) {
-      setError('Amount is required');
-      return;
-    }
-
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Please enter a valid amount');
-      return;
+      setAmountError('Amount is required');
+      valid = false;
+    } else if (isNaN(Number(amount)) || Number(amount) < 0.01) {
+      setAmountError('Amount must be at least 0.01');
+      valid = false;
+    } else {
+      setAmountError('');
     }
 
     if (!description) {
-      setError('Description is required');
+      setDescriptionError('Description is required');
+      valid = false;
+    } else {
+      setDescriptionError('');
+    }
+    return valid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowErrors(true);
+    if (!validate()) {
       return;
     }
-
     setLoading(true);
-    setError('');
-
     try {
-      await WalletService.deposit({
-        amount: amountNum,
+      await WalletService.withdraw({
+        amount: parseFloat(amount),
         description
       });
-
-      setSuccess(true);
-      setTimeout(() => {
+      showSuccessToast('Funds withdrawn successfully!');
+      setAmount('');
+      setDescription('');
+      setShowErrors(false);
         onTransactionComplete();
-      }, 1500);
     } catch (err) {
-      setError('Transaction failed. Please try again later.');
+      showErrorToast('Transaction failed. Please try again later.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -55,62 +63,45 @@ const AddFunds: React.FC<AddFundsProps> = ({ walletId, onTransactionComplete }) 
 
   return (
     <div className="max-w-md mx-auto">
-      {success ? (
-        <div className="bg-green-50 border border-green-400 rounded p-4 text-center" data-testid="addfunds-success">
-          <h3 className="text-green-800 font-semibold text-lg mb-2">Funds added successfully!</h3>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            onClick={() => setSuccess(false)}
-          >
-            Add more funds
-          </button>
-        </div>
-      ) : (
         <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Add Funds to Your Wallet</h2>
+          <h2 className="text-xl font-semibold mb-4">Withdraw Funds from Your Wallet</h2>
 
-          {error && <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-
-          <div className="mb-4">
-            <label htmlFor="amount" className="block text-gray-700 mb-2">Amount</label>
-            <input
+        <FormInput
+          id="amount"
+          label="Amount"
               type="number"
-              id="amount"
-              data-testid="addfunds-amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Enter amount"
               step="0.01"
-              min="0.01"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          showError={showErrors}
+          error={amountError}
+          data-testid="addfunds-amount"
             />
-          </div>
 
-          <div className="mb-4">
-            <label htmlFor="description" className="block text-gray-700 mb-2">Description</label>
-            <input
+        <FormInput
+          id="description"
+          label="Description"
               type="text"
-              id="description"
-              data-testid="addfunds-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter description"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+          showError={showErrors}
+          error={descriptionError}
+          data-testid="addfunds-description"
             />
-          </div>
 
           <button
             type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             data-testid="addfunds-submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
           >
-            {loading ? 'Processing...' : 'Add Funds'}
+            {loading ? 'Processing...' : 'Withdraw Funds'}
           </button>
         </form>
-      )}
     </div>
   );
 };

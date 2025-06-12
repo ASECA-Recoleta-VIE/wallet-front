@@ -52,7 +52,9 @@ const WalletDashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-800">My Wallet</h1>
         <div className="mt-2">
           <span className="text-gray-600">Balance:</span>
-          <h2 className="text-3xl font-bold text-green-600">${wallet.balance.toFixed(2)}</h2>
+          <h2 className="text-3xl font-bold text-green-600">
+            ${typeof wallet.balance === 'number' ? wallet.balance.toFixed(2) : '0.00'}
+          </h2>
         </div>
       </div>
 
@@ -60,6 +62,7 @@ const WalletDashboard: React.FC = () => {
         <button
           className={`px-4 py-2 font-medium ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('overview')}
+          data-testid="overview-title"
         >
           Overview
         </button>
@@ -67,7 +70,7 @@ const WalletDashboard: React.FC = () => {
           className={`px-4 py-2 font-medium ${activeTab === 'addFunds' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('addFunds')}
         >
-          Add Funds
+          Withdraw Funds
         </button>
         <button
           className={`px-4 py-2 font-medium ${activeTab === 'transfer' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
@@ -78,6 +81,7 @@ const WalletDashboard: React.FC = () => {
         <button
           className={`px-4 py-2 font-medium ${activeTab === 'requestDebin' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('requestDebin')}
+           data-testid="request-debin-title"
         >
           Request DEBIN
         </button>
@@ -93,7 +97,6 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'addFunds' && (
           <div>
             <AddFunds
-              walletId=""
               onTransactionComplete={handleTransactionComplete}
             />
           </div>
