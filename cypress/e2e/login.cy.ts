@@ -4,6 +4,21 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 });
 
 describe('Login de usuario', () => {
+  before(() => {
+    // Registra el usuario antes de todos los tests (usando la UI)
+    cy.clearCookies();
+    cy.clearLocalStorage();
+    cy.visit('/register');
+    cy.url().should('include', '/register');
+    cy.get('[data-testid="register-name"]').type('Pablo Pagliaricci');
+    cy.get('[data-testid="register-email"]').clear().type('pablopagliaricci@gmail.com');
+    cy.get('[data-testid="register-password"]').type('Password1!');
+    cy.get('[data-testid="register-confirm-password"]').type('Password1!');
+    cy.get('[data-testid="register-submit"]').click();
+    // Puede que ya exista, así que ignoramos el error si el usuario ya está registrado
+    cy.url().should('include', '/login');
+  });
+
   beforeEach(() => {
     // Limpiar cookies y localStorage antes de cada test
     cy.clearCookies();
