@@ -74,11 +74,12 @@ jobs:
             -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/walletdb \
             -e SPRING_DATASOURCE_USERNAME=walletuser \
             -e SPRING_DATASOURCE_PASSWORD=walletpassword \
-            --network host \
+            -p 8080:8080 \
             ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
       - name: Print wallet-back logs
         run: docker logs wallet-back
+
       - name: Wait for backend to be ready
         run: |
           echo "Waiting for backend to respond to login..."
@@ -86,7 +87,9 @@ jobs:
             curl -X POST http://localhost:8080/auth/login \
               -H "Content-Type: application/json" \
               -d '{"email":"pablopagliaricci@gmail.com", "password":"Password1!"}' \
-              --fail && break || sleep 5
+              --fail && echo "Backend ready!" && break
+            echo "Retrying... ($i)"
+            sleep 5
           done
 
       - name: Run Cypress tests
