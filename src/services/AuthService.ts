@@ -10,7 +10,7 @@ class AuthService {
         `${API_URL}/api/users/login`,
         { email, password }
       );
-      return response.data === 'login-success';
+      return !!response.data && !!response.data.email;
     } catch (error: any) {
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';
@@ -53,9 +53,30 @@ class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await axios.post(`${API_URL}/api/users/logout`, {}, { withCredentials: true });
+      // Eliminar la cookie 'token'
+      document.cookie = 'token=; Max-Age=0; path=/;';
     } catch (error) {
       console.error('Logout failed:', error);
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User | null> {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/email/${email}`);
+      return response.data as User;
+    } catch (error) {
+      console.error('Failed to get user by email:', error);
+      return null;
+    }
+  }
+
+  async getUserById(id: string): Promise<User | null> {
+    try {
+      const response = await axios.get(`${API_URL}/api/users/${id}`);
+      return response.data as User;
+    } catch (error) {
+      console.error('Failed to get user by id:', error);
+      return null;
     }
   }
 }

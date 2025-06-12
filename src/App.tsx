@@ -9,11 +9,11 @@ import WalletDashboard from './components/WalletDashboard';
 import Transactions from './pages/Transactions';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ToastProvider from './components/ToastProvider';
 
 // Context
 import { AuthProvider } from './providers/AuthProvider';
 import { AuthGuard } from './guards/AuthGuard';
-import { UserGuard } from './guards/UserGuard';
 
 const App: React.FC = () => {
 
@@ -27,15 +27,14 @@ const App: React.FC = () => {
 
   return (
     <Router>
+      <ToastProvider>
       <AuthProvider>
         <div className="flex flex-col min-h-screen bg-gray-50">
           <Header />
           <main className="flex-grow container mx-auto px-4 py-8">
             <Routes>
-              <Route element={<UserGuard />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-              </Route>
               <Route element={<AuthGuard />}>
                 <Route path="/wallet" element={<WalletDashboard />} />
                 <Route path="/transactions" element={<Transactions />} />
@@ -46,6 +45,7 @@ const App: React.FC = () => {
           <Footer />
         </div>
       </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 };

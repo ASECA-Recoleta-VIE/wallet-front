@@ -49,7 +49,12 @@ class WalletService {
       return response.data as TransferResponse;
     } catch (error: any) {
       console.error('Transfer failed:', error);
-      throw new Error(error.response?.data || 'Transfer failed');
+      throw new Error(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data ||
+        'Transfer failed'
+      );
     }
   }
 
@@ -60,6 +65,36 @@ class WalletService {
     } catch (error: any) {
       console.error('Failed to get history:', error);
       throw new Error(error.response?.data || 'Failed to get history');
+    }
+  }
+
+  async getWalletByUserId(userId: string): Promise<WalletResponse | null> {
+    try {
+      const response = await axios.get(`${API_URL}/wallet/user/${userId}`);
+      return response.data as WalletResponse;
+    } catch (error: any) {
+      console.error('Failed to get wallet by user ID:', error);
+      return null;
+    }
+  }
+
+  async getWalletById(walletId: string): Promise<WalletResponse | null> {
+    try {
+      const response = await axios.get(`${API_URL}/wallet/${walletId}`);
+      return response.data as WalletResponse;
+    } catch (error: any) {
+      console.error('Failed to get wallet by ID:', error);
+      return null;
+    }
+  }
+
+  async updateBalance(walletId: string, amount: number): Promise<WalletResponse> {
+    try {
+      const response = await axios.put(`${API_URL}/wallet/${walletId}/balance`, { amount });
+      return response.data as WalletResponse;
+    } catch (error: any) {
+      console.error('Failed to update wallet balance:', error);
+      throw new Error(error.response?.data || 'Failed to update wallet balance');
     }
   }
 }

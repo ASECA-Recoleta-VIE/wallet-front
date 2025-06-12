@@ -23,35 +23,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    console.log('AuthProvider: Attempting login...');
     try {
       const success = await AuthService.login(email, password);
+      console.log('AuthProvider: Login result:', success);
       setIsAuthenticated(success);
       return success;
     } catch (err) {
+      console.error('AuthProvider: Login error:', err);
       setIsAuthenticated(false);
       return false;
     }
   };
 
   const logout = () => {
+    console.log('AuthProvider: Logging out...');
     AuthService.logout();
     setIsAuthenticated(false);
   };
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('AuthProvider: Checking authentication status...');
       try {
-        // Try to fetch wallet data - if successful, user is authenticated
         await WalletService.getWallet();
+        console.log('AuthProvider: Wallet fetch successful, user is authenticated');
         setIsAuthenticated(true);
       } catch (error) {
-        console.error('Failed to check authentication status:', error);
+        console.error('AuthProvider: Failed to check authentication status:', error);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
-
+  
     checkAuth();
   }, []);
 
