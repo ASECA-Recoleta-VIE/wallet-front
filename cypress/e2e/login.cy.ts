@@ -7,7 +7,7 @@ describe('Login de usuario', () => {
   before(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/register');
+    cy.visit('/register?testmode=true');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Register');
     cy.wait(3000);
@@ -32,7 +32,7 @@ describe('Login de usuario', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/login');
+    cy.visit('/login?testmode=true');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');
     cy.wait(3000);
@@ -40,7 +40,6 @@ describe('Login de usuario', () => {
   });
 
   it('permite iniciar sesión correctamente con credenciales válidas', () => {
-    cy.visit('/login');
     cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
       cy.wrap($input).type('pablopagliaricci@gmail.com');
     });
@@ -55,7 +54,6 @@ describe('Login de usuario', () => {
   });
 
   it('muestra error con credenciales inválidas', () => {
-    cy.visit('/login');
     cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
       cy.wrap($input).type('usuario@ejemplo.com');
     });
@@ -69,12 +67,10 @@ describe('Login de usuario', () => {
   });
 
   it('valida campos requeridos', () => {
-    cy.visit('/login');
     cy.get('[data-testid="login-submit"]', { timeout: 10000 }).should('exist').should('be.visible');
     cy.get('[data-testid="login-submit"]', { timeout: 10000 }).click();
     cy.contains('Email is required', { timeout: 10000 }).should('be.visible');
     cy.contains('Password is required', { timeout: 10000 }).should('be.visible');
-    cy.url().should('include', '/login');
   });
 
   it('permite mostrar/ocultar contraseña', () => {

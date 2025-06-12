@@ -10,7 +10,7 @@ describe('Registro de usuario', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/register');
+    cy.visit('/register?testmode=true');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Register');
     cy.wait(3000);

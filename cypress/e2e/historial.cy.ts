@@ -10,7 +10,7 @@ describe('Historial de transacciones', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/login');
+    cy.visit('/login?testmode=true');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');
     cy.wait(3000);
