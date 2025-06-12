@@ -33,9 +33,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install frontend dependencies
         run: npm install
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
+
+      - name: Install Cypress binary
+        run: npx cypress install
 
       - name: Build frontend
         run: npm run build
@@ -54,16 +66,16 @@ jobs:
       - name: Login to GitHub Container Registry (GHCR)
         run: echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u Pagliaricci --password-stdin
 
-      - name: Pull wallet-back image (verificación)
+      - name: Pull wallet-back image
         run: docker pull ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
       - name: Start wallet-back container
         run: |
           docker run -d --name wallet-back \
-            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/walletdb \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/walletdb \
             -e SPRING_DATASOURCE_USERNAME=walletuser \
             -e SPRING_DATASOURCE_PASSWORD=walletpassword \
-            -p 8080:8080 \
+            --network host \
             ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
       - name: Wait for backend to be ready
@@ -72,7 +84,5 @@ jobs:
           url: http://localhost:8080/actuator/health
           timeout: 60
 
-      - name: Eliminar caché previa de Cypress
-        run: rm -rf ~/.cache/Cypress
       - name: Run Cypress tests
         run: npx cypress run
