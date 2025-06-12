@@ -78,10 +78,14 @@ jobs:
             ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
       - name: Wait for backend to be ready
-        uses: jakejarvis/wait-action@v0.1.0
-        with:
-          url: http://localhost:8080/actuator/health
-          timeout: 60
+        run: |
+          echo "Waiting for backend to respond to login..."
+          for i in {1..10}; do
+            curl -X POST http://localhost:8080/auth/login \
+              -H "Content-Type: application/json" \
+              -d '{"email":"pablopagliaricci@gmail.com", "password":"Password1!"}' \
+              --fail && break || sleep 5
+          done
 
       - name: Run Cypress tests
         run: npx cypress run
