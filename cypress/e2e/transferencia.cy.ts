@@ -12,7 +12,7 @@ describe('Transferencia de dinero', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/login?testmode=true');
+    cy.visit('/login');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');
     cy.wait(3000);

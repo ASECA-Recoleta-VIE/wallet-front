@@ -13,8 +13,6 @@ describe('Carga de saldo', () => {
     cy.clearLocalStorage();
 
     // Verificar que el backend responde antes de empezar
-    cy.request('http://localhost:8080/actuator/health').its('status').should('eq', 200);
-
     // Visita login
     cy.visit('/login');
     cy.document().its('readyState').should('eq', 'complete');

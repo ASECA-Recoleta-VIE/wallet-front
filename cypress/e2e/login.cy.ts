@@ -7,7 +7,7 @@ describe('Login de usuario', () => {
   before(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/register?testmode=true');
+    cy.visit('/register');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Register');
     cy.wait(3000);
@@ -32,7 +32,7 @@ describe('Login de usuario', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
-    cy.visit('/login?testmode=true');
+    cy.visit('/login');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');
     cy.wait(3000);
