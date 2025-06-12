@@ -16,11 +16,11 @@ describe('Carga de saldo', () => {
     cy.get('[data-testid="login-email"]').should('be.visible').type('pablopagliaricci@gmail.com');
     cy.get('[data-testid="login-password"]').should('be.visible').type('Password1!');
     cy.get('[data-testid="login-submit"]').click();
+    cy.contains('Login Successfully!', { timeout: 10000 }).should('exist');
 
     // Verificamos redirección a /wallet
     cy.url({ timeout: 10000 }).should('include', '/wallet');
 
-    cy.contains('Invalid credentials').should('not.exist');
 
     // Accedemos a la funcionalidad de "Add Funds"
     cy.contains('Add Funds', { timeout: 10000 }).should('be.visible').click();
