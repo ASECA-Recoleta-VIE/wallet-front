@@ -77,6 +77,8 @@ jobs:
             --network host \
             ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
+      - name: Print wallet-back logs
+        run: docker logs wallet-back
       - name: Wait for backend to be ready
         run: |
           echo "Waiting for backend to respond to login..."
