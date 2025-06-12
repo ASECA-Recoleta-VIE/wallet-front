@@ -49,7 +49,12 @@ class WalletService {
       return response.data as TransferResponse;
     } catch (error: any) {
       console.error('Transfer failed:', error);
-      throw new Error(error.response?.data || 'Transfer failed');
+      throw new Error(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data ||
+        'Transfer failed'
+      );
     }
   }
 

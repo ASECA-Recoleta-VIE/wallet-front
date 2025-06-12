@@ -9,6 +9,7 @@ import WalletDashboard from './components/WalletDashboard';
 import Transactions from './pages/Transactions';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ToastProvider from './components/ToastProvider';
 
 // Context
 import { AuthProvider } from './providers/AuthProvider';
@@ -27,6 +28,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
+      <ToastProvider>
       <AuthProvider>
         <div className="flex flex-col min-h-screen bg-gray-50">
           <Header />
@@ -46,6 +48,7 @@ const App: React.FC = () => {
           <Footer />
         </div>
       </AuthProvider>
+      </ToastProvider>
     </Router>
   );
 };
