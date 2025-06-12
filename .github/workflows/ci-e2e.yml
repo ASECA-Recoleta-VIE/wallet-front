@@ -25,6 +25,20 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      wallet-back:
+        image: ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/walletdb
+          SPRING_DATASOURCE_USERNAME: walletuser
+          SPRING_DATASOURCE_PASSWORD: walletpassword
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd "curl --fail http://localhost:8080/auth/login || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
     steps:
       - name: Checkout frontend
         uses: actions/checkout@v4
@@ -62,33 +76,6 @@ jobs:
           url: http://localhost:5173
           timeout: 60
 
-      - name: Login to GitHub Container Registry (GHCR)
-        run: echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u Pagliaricci --password-stdin
-
-      - name: Pull wallet-back image
-        run: docker pull ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
-
-      - name: Create Docker network
-        run: docker network create wallet-test-net
-
-      - name: Connect postgres service container to custom network
-        run: |
-          POSTGRES_CONTAINER_ID=$(docker ps -q --filter "ancestor=postgres:latest")
-          docker network connect wallet-test-net $POSTGRES_CONTAINER_ID
-
-      - name: Start wallet-back container
-        run: |
-          docker run -d --name wallet-back \
-            --network wallet-test-net \
-            -e SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/walletdb \
-            -e SPRING_DATASOURCE_USERNAME=walletuser \
-            -e SPRING_DATASOURCE_PASSWORD=walletpassword \
-            -p 8080:8080 \
-            ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
-
-      - name: Check if backend container is running
-        run: docker ps -a
-
       - name: Wait for backend to be ready
         run: |
           echo "Waiting for backend to respond to login..."
@@ -98,7 +85,6 @@ jobs:
               -d '{"email":"pablopagliaricci@gmail.com", "password":"Password1!"}' \
               --fail && break
             echo "Retrying... ($i)"
-            docker logs wallet-back || true
             sleep 5
           done
 
