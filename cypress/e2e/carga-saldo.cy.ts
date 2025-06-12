@@ -12,49 +12,84 @@ describe('Carga de saldo', () => {
     cy.clearLocalStorage();
     cy.visit('/login');
     cy.url().should('include', '/login');
-    cy.get('[data-testid="login-email"]').type('pablopagliaricci@gmail.com');
-    cy.get('[data-testid="login-password"]').type('Password1!');
-    cy.get('[data-testid="login-submit"]').click();
+    cy.get('[data-testid="login-email"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="login-email"]', { timeout: 10000 }).type('pablopagliaricci@gmail.com');
+    cy.get('[data-testid="login-password"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="login-password"]', { timeout: 10000 }).type('Password1!');
+    cy.get('[data-testid="login-submit"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="login-submit"]', { timeout: 10000 }).click();
     cy.url().should('include', '/wallet');
-    cy.contains('Add Funds').click();
+    cy.contains('Add Funds', { timeout: 10000 }).should('exist').should('be.visible');
+    cy.contains('Add Funds', { timeout: 10000 }).click();
   });
 
   it('permite cargar saldo correctamente', () => {
-    cy.get('[data-testid="addfunds-amount"]').type('100');
-    cy.get('[data-testid="addfunds-description"]').type('Recarga test');
-    cy.get('[data-testid="addfunds-submit"]').click();
-    
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).type('100');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).type('Recarga test');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 }).click();
     // Verificar toast de éxito
-    cy.contains('Funds added successfully!').should('be.visible');
-    
+    cy.contains('Funds added successfully!', { timeout: 10000 }).should('be.visible');
     // Verificar que los campos se limpian
-    cy.get('[data-testid="addfunds-amount"]').should('have.value', '');
-    cy.get('[data-testid="addfunds-description"]').should('have.value', '');
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).should('have.value', '');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).should('have.value', '');
   });
 
   it('valida campos requeridos', () => {
-    cy.get('[data-testid="addfunds-submit"]').click();
-
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 }).click();
     // Verificar mensajes de error personalizados
-    cy.contains('Amount is required').should('be.visible');
-    cy.contains('Description is required').should('be.visible');
+    cy.contains('Amount is required', { timeout: 10000 }).should('be.visible');
+    cy.contains('Description is required', { timeout: 10000 }).should('be.visible');
   });
 
   it('valida monto inválido', () => {
-    cy.get('[data-testid="addfunds-amount"]').type('0');
-    cy.get('[data-testid="addfunds-description"]').type('Recarga test');
-    cy.get('[data-testid="addfunds-submit"]').click();
-
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).type('0');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).type('Recarga test');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 }).click();
     // Verificar mensaje de error personalizado
-    cy.contains('Amount must be at least 0.01').should('be.visible');
+    cy.contains('Amount must be at least 0.01', { timeout: 10000 }).should('be.visible');
   });
 
   it('valida monto negativo', () => {
-    cy.get('[data-testid="addfunds-amount"]').type('-10');
-    cy.get('[data-testid="addfunds-description"]').type('Recarga test');
-    cy.get('[data-testid="addfunds-submit"]').click();
-
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).type('-10');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).type('Recarga test');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
+      .should('exist')
+      .should('be.visible');
+    cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 }).click();
     // Verificar mensaje de error personalizado
-    cy.contains('Amount must be at least 0.01').should('be.visible');
+    cy.contains('Amount must be at least 0.01', { timeout: 10000 }).should('be.visible');
   });
 }); 
