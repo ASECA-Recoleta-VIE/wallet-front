@@ -19,6 +19,7 @@ describe('Carga de saldo', () => {
     cy.wait(3000);
     cy.url().should('include', '/login');
   });
+  
     cy.get('[data-testid="login-email"]', { timeout: 10000 })
       .should('exist')
       .should('be.visible')
