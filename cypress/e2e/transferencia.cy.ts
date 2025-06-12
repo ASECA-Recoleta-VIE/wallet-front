@@ -7,6 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false;
 });
 
+
 describe('Transferencia de dinero', () => {
   beforeEach(() => {
     cy.visit('/login');
@@ -23,15 +24,69 @@ describe('Transferencia de dinero', () => {
     cy.get('[data-testid="transfer-amount"]').type('10');
     cy.get('[data-testid="transfer-description"]').type('Pago test');
     cy.get('[data-testid="transfer-submit"]').click();
-    cy.get('[data-testid="transfer-success"]').should('be.visible');
+    
+    // Verificar toast de éxito
+    cy.contains('Transfer successful!').should('be.visible');
+    
+    // Verificar que los campos se limpian
+    cy.get('[data-testid="transfer-to-email"]').should('have.value', '');
+    cy.get('[data-testid="transfer-amount"]').should('have.value', '');
+    cy.get('[data-testid="transfer-description"]').should('have.value', '');
   });
 
-  it('muestra error si falta el email del destinatario', () => {
+  it('valida campos requeridos', () => {
+    cy.get('[data-testid="transfer-submit"]').click();
+
+    // Verificar mensajes de error personalizados
+    cy.contains('Recipient Email is required').should('be.visible');
+    cy.contains('Amount is required').should('be.visible');
+  });
+
+
+
+  it('valida monto inválido', () => {
+    cy.get('[data-testid="transfer-to-email"]').type('pedropagliaricci@gmail.com');
+    cy.get('[data-testid="transfer-amount"]').type('0');
+    cy.get('[data-testid="transfer-description"]').type('Pago test');
+    cy.get('[data-testid="transfer-submit"]').click();
+
+    // Verificar mensaje de error personalizado
+    cy.contains('Please enter a valid amount').should('be.visible');
+  });
+
+  it('valida monto negativo', () => {
+    cy.get('[data-testid="transfer-to-email"]').type('pedropagliaricci@gmail.com');
+    cy.get('[data-testid="transfer-amount"]').type('-10');
+    cy.get('[data-testid="transfer-description"]').type('Pago test');
+    cy.get('[data-testid="transfer-submit"]').click();
+
+    // Verificar mensaje de error personalizado
+    cy.contains('Please enter a valid amount').should('be.visible');
+  });
+
+  it('muestra error si el destinatario no existe', () => {
+    cy.get('[data-testid="transfer-to-email"]').type('nonexistent@example.com');
     cy.get('[data-testid="transfer-amount"]').type('10');
     cy.get('[data-testid="transfer-description"]').type('Pago test');
     cy.get('[data-testid="transfer-submit"]').click();
-    cy.get('[data-testid="transfer-to-email"]').then(($input) => {
-      expect(($input[0] as HTMLInputElement).checkValidity()).to.be.false;
-    });
+    
+    // Verificar toast de error
+    cy.contains('User not found: nonexistent@example.com').should('be.visible');
+  });
+
+  it('muestra error si no hay saldo suficiente', () => {
+    cy.get('[data-testid="transfer-to-email"]').type('pedropagliaricci@gmail.com');
+    cy.get('[data-testid="transfer-amount"]').type('100000000000');
+    cy.get('[data-testid="transfer-description"]').type('Pago test');
+    cy.get('[data-testid="transfer-submit"]').click();
+    
+    // Verificar toast de error
+    cy.contains('Insufficient funds').should('be.visible');
+  });
+
+  it('permite hacer logout correctamente', () => {
+    cy.get('[data-testid="logout-btn"]').click();
+    cy.url().should('include', '/login');
+    cy.contains('Log In').should('be.visible');
   });
 }); 

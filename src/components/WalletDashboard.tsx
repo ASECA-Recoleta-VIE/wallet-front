@@ -52,7 +52,9 @@ const WalletDashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-800">My Wallet</h1>
         <div className="mt-2">
           <span className="text-gray-600">Balance:</span>
-          <h2 className="text-3xl font-bold text-green-600">${wallet.balance.toFixed(2)}</h2>
+          <h2 className="text-3xl font-bold text-green-600">
+            ${typeof wallet.balance === 'number' ? wallet.balance.toFixed(2) : '0.00'}
+          </h2>
         </div>
       </div>
 
@@ -93,7 +95,6 @@ const WalletDashboard: React.FC = () => {
         {activeTab === 'addFunds' && (
           <div>
             <AddFunds
-              walletId=""
               onTransactionComplete={handleTransactionComplete}
             />
           </div>

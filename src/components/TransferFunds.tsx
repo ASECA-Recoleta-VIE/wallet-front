@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import WalletService from '../services/WalletService';
+import { showErrorToast, showSuccessToast } from '../utils/toast';
+import FormInput from './FormInput';
 
 interface TransferFundsProps {
   onTransactionComplete: () => void;
@@ -9,50 +11,43 @@ const TransferFunds: React.FC<TransferFundsProps> = ({ onTransactionComplete }) 
   const [toEmail, setToEmail] = useState('');
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  const validateForm = () => {
+    if (!toEmail) return false;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(toEmail)) return false;
+    const num = Number(amount);
+    if (!amount || isNaN(num) || num < 0.01) return false;
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setShowErrors(true);
 
-    if (!toEmail) {
-      setError('Recipient email is required');
-      return;
-    }
-
-    if (!amount) {
-      setError('Amount is required');
-      return;
-    }
-
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Please enter a valid amount');
-      return;
-    }
-
-    if (!description) {
-      setError('Description is required');
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
-    setError('');
 
     try {
       await WalletService.transfer({
         toEmail,
-        amount: amountNum,
+        amount: parseFloat(amount),
         description
       });
 
-      setSuccess(true);
-      setTimeout(() => {
-        onTransactionComplete();
-      }, 1500);
+      showSuccessToast('Transfer successful!');
+      setToEmail('');
+      setAmount('');
+      setDescription('');
+      onTransactionComplete();
     } catch (err: any) {
-      setError(err.message || 'Transfer failed. Please try again later.');
+      showErrorToast(err.message || 'Transfer failed. Please try again later.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -61,76 +56,56 @@ const TransferFunds: React.FC<TransferFundsProps> = ({ onTransactionComplete }) 
 
   return (
     <div className="max-w-md mx-auto">
-      {success ? (
-        <div className="bg-green-50 border border-green-400 rounded p-4 text-center" data-testid="transfer-success">
-          <h3 className="text-green-800 font-semibold text-lg mb-2">Transfer successful!</h3>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            onClick={() => setSuccess(false)}
-          >
-            Make another transfer
-          </button>
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Transfer Funds</h2>
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4">Transfer Funds</h2>
 
-          {error && <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
+        <FormInput
+          id="toEmail"
+          label="Recipient Email"
+          type="email"
+          value={toEmail}
+          onChange={(e) => setToEmail(e.target.value)}
+          placeholder="Enter recipient's email"
+          required
+          showError={showErrors}
+          data-testid="transfer-to-email"
+          onValidationChange={(isValid) => setIsFormValid(isValid)}
+        />
 
-          <div className="mb-4">
-            <label htmlFor="toEmail" className="block text-gray-700 mb-2">Recipient Email</label>
-            <input
-              type="email"
-              id="toEmail"
-              data-testid="transfer-to-email"
-              value={toEmail}
-              onChange={(e) => setToEmail(e.target.value)}
-              placeholder="Enter recipient's email"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+        <FormInput
+          id="amount"
+          label="Amount"
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Enter amount"
+          step="0.01"
+          min="0.01"
+          required
+          showError={showErrors}
+          data-testid="transfer-amount"
+          onValidationChange={(isValid) => setIsFormValid(isValid)}
+        />
 
-          <div className="mb-4">
-            <label htmlFor="amount" className="block text-gray-700 mb-2">Amount</label>
-            <input
-              type="number"
-              id="amount"
-              data-testid="transfer-amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="Enter amount"
-              step="0.01"
-              min="0.01"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+        <FormInput
+          id="description"
+          label="Description (optional)"
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Enter description"
+          data-testid="transfer-description"
+        />
 
-          <div className="mb-4">
-            <label htmlFor="description" className="block text-gray-700 mb-2">Description</label>
-            <input
-              type="text"
-              id="description"
-              data-testid="transfer-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter description"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            data-testid="transfer-submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
-          >
-            {loading ? 'Processing...' : 'Transfer Funds'}
-          </button>
-        </form>
-      )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+          data-testid="transfer-submit"
+        >
+          {loading ? 'Processing...' : 'Transfer Funds'}
+        </button>
+      </form>
     </div>
   );
 };

@@ -35,7 +35,7 @@ jobs:
           node-version: 20
 
       - name: Install frontend dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build frontend
         run: npm run build
@@ -51,30 +51,20 @@ jobs:
           url: http://localhost:5173
           timeout: 60
 
-      - name: Checkout backend
-        uses: actions/checkout@v4
-        with:
-          repository: ASECA-Recoleta-VIE/wallet-back
-          path: wallet-back
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Login to GitHub Container Registry (GHCR)
+        run: echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u Pagliaricci --password-stdin
 
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: temurin
+      - name: Pull wallet-back image (verificación)
+        run: docker pull ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
-      - name: Build backend
-        working-directory: wallet-back
-        run: ./gradlew build
-
-      - name: Start backend
-        working-directory: wallet-back
-        run: ./gradlew bootRun &
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/walletdb
-          SPRING_DATASOURCE_USERNAME: walletuser
-          SPRING_DATASOURCE_PASSWORD: walletpassword
+      - name: Start wallet-back container
+        run: |
+          docker run -d --name wallet-back \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/walletdb \
+            -e SPRING_DATASOURCE_USERNAME=walletuser \
+            -e SPRING_DATASOURCE_PASSWORD=walletpassword \
+            -p 8080:8080 \
+            ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
       - name: Wait for backend to be ready
         uses: jakejarvis/wait-action@v0.1.0
