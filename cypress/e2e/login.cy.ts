@@ -5,10 +5,12 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Login de usuario', () => {
   before(() => {
-    // Registra el usuario antes de todos los tests (usando la UI)
     cy.clearCookies();
     cy.clearLocalStorage();
     cy.visit('/register');
+    cy.document().its('readyState').should('eq', 'complete');
+    cy.get('body').should('contain.text', 'Register');
+    cy.wait(3000);
     cy.url().should('include', '/register');
     cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
       cy.wrap($input).type('Pablo Pagliaricci');
@@ -31,6 +33,9 @@ describe('Login de usuario', () => {
     cy.clearCookies();
     cy.clearLocalStorage();
     cy.visit('/login');
+    cy.document().its('readyState').should('eq', 'complete');
+    cy.get('body').should('contain.text', 'Login');
+    cy.wait(3000);
     cy.url().should('include', '/login');
   });
 

@@ -1,3 +1,4 @@
+
 // Ignora errores uncaught del frontend para depuración
 Cypress.on('uncaught:exception', (err, runnable) => {
     return false;
@@ -8,6 +9,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
       cy.clearCookies();
       cy.clearLocalStorage();
       cy.visit('/login');
+      cy.document().its('readyState').should('eq', 'complete');
+      cy.get('body').should('contain.text', 'Login');
+      cy.wait(3000);
       cy.url().should('include', '/login');
       cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible');
       cy.get('[data-testid="login-email"]', { timeout: 10000 }).type('pablopagliaricci@gmail.com');

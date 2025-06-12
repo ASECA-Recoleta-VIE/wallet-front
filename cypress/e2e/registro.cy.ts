@@ -11,6 +11,9 @@ describe('Registro de usuario', () => {
     cy.clearCookies();
     cy.clearLocalStorage();
     cy.visit('/register');
+    cy.document().its('readyState').should('eq', 'complete');
+    cy.get('body').should('contain.text', 'Register');
+    cy.wait(3000);
     cy.url().should('include', '/register');
   });
 
