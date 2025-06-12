@@ -25,30 +25,16 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      wallet-back:
-        image: ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/walletdb
-          SPRING_DATASOURCE_USERNAME: walletuser
-          SPRING_DATASOURCE_PASSWORD: walletpassword
-        ports:
-          - 8080:8080
-        options: >-
-          --health-cmd "curl --fail http://localhost:8080/auth/login || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
-
     steps:
       - name: Checkout frontend
         uses: actions/checkout@v4
 
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install frontend dependencies
+      - name: Install dependencies
         run: npm install
 
       - name: Cache Cypress binary
@@ -59,13 +45,13 @@ jobs:
           restore-keys: |
             cypress-${{ runner.os }}-
 
-      - name: Install Cypress binary
+      - name: Install Cypress
         run: npx cypress install
 
       - name: Build frontend
         run: npm run build
 
-      - name: Start frontend server
+      - name: Start frontend (Vite)
         run: npm run preview &
         env:
           NODE_ENV: test
@@ -76,15 +62,35 @@ jobs:
           url: http://localhost:5173
           timeout: 60
 
+      - name: Login to GitHub Container Registry (GHCR)
+        run: echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Pull wallet-back image
+        run: docker pull ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
+
+      - name: Start wallet-back container
+        run: |
+          docker run -d --name wallet-back \
+            --network host \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/walletdb \
+            -e SPRING_DATASOURCE_USERNAME=walletuser \
+            -e SPRING_DATASOURCE_PASSWORD=walletpassword \
+            -p 8080:8080 \
+            ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
+
+      - name: Print wallet-back logs (debug)
+        run: docker logs wallet-back || true
+
       - name: Wait for backend to be ready
         run: |
           echo "Waiting for backend to respond to login..."
-          for i in {1..20}; do
+          for i in {1..10}; do
             curl -X POST http://localhost:8080/auth/login \
               -H "Content-Type: application/json" \
               -d '{"email":"pablopagliaricci@gmail.com", "password":"Password1!"}' \
               --fail && break
             echo "Retrying... ($i)"
+            docker logs wallet-back || true
             sleep 5
           done
 
