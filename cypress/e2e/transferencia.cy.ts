@@ -10,10 +10,13 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Transferencia de dinero', () => {
   beforeEach(() => {
+    cy.clearCookies();
+    cy.clearLocalStorage();
     cy.visit('/login');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');
     cy.wait(3000);
+    cy.url().should('include', '/login');
     cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
       cy.wrap($input).type('pablopagliaricci@gmail.com');
     });

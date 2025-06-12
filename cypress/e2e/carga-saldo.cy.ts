@@ -10,11 +10,15 @@ describe('Carga de saldo', () => {
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
+    cy.window().then((win) => {
+      win.document.cookie = 'token=; Max-Age=0; path=/;';
+    });
     cy.visit('/login');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');
     cy.wait(3000);
     cy.url().should('include', '/login');
+  });
     cy.get('[data-testid="login-email"]', { timeout: 10000 })
       .should('exist')
       .should('be.visible')
