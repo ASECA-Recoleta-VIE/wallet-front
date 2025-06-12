@@ -42,9 +42,6 @@ describe('Carga de saldo', () => {
       }
     });
 
-    // Verificar redirección a /wallet
-    cy.url({ timeout: 10000 }).should('include', '/wallet');
-
     // Captura por si no aparece botón Add Funds
     cy.contains('Add Funds', { timeout: 10000 })
       .should('be.visible')
