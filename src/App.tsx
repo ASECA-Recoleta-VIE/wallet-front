@@ -17,14 +17,6 @@ import { AuthGuard } from './guards/AuthGuard';
 
 const App: React.FC = () => {
 
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center justify-center h-screen text-xl font-semibold">
-  //       Loading...
-  //     </div>
-  //   );
-  // }
-
   return (
     <Router>
       <ToastProvider>

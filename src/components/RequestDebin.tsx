@@ -6,12 +6,13 @@ interface RequestDebinProps {
   onTransactionComplete: () => void;
 }
 
-const RequestDebin: React.FC<RequestDebinProps> = ({ walletId, onTransactionComplete }) => {
+const RequestDebin: React.FC<RequestDebinProps> = ({ onTransactionComplete }) => {
   const [amount, setAmount] = useState('');
-  const [bankAccountNumber, setBankAccountNumber] = useState('');
-  const [bankRoutingNumber, setBankRoutingNumber] = useState('');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
 
@@ -29,8 +30,8 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ walletId, onTransactionComp
       return;
     }
 
-    if (!bankAccountNumber || !bankRoutingNumber) {
-      setError('All bank details are required');
+    if (!accountNumber) {
+      setError('Account number is required');
       return;
     }
 
@@ -39,25 +40,31 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ walletId, onTransactionComp
 
     try {
       const transaction = await TransactionService.requestDebin(
-        walletId,
         amountNum,
         {
-          accountNumber: bankAccountNumber,
-          routingNumber: bankRoutingNumber
+          accountId: accountNumber,
+          description: description
         }
       );
 
       if (transaction) {
-        setSuccess(true);
+        setLoading(false);
+        setProcessing(true);
         setRequestId(transaction.id);
-        onTransactionComplete();
+
+        // Delay showing success message for 2 seconds
+        setTimeout(() => {
+          setProcessing(false);
+          setSuccess(true);
+          onTransactionComplete();
+        }, 2000);
       } else {
         setError('Failed to submit DEBIN request. Please try again.');
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Transaction failed. Please try again later.');
+    } catch (err: any) {
+      setError(err.message || 'Transaction failed. Please try again later.');
       console.error(err);
-    } finally {
       setLoading(false);
     }
   };
@@ -75,6 +82,17 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ walletId, onTransactionComp
           >
             Make another request
           </button>
+        </div>
+      ) : processing ? (
+        <div className="bg-blue-50 border border-blue-400 rounded p-4 text-center">
+          <div className="animate-pulse">
+            <h3 className="text-blue-800 font-semibold text-lg mb-2">Processing your request...</h3>
+            <p className="mb-2">Please wait while we process your DEBIN request.</p>
+            <p className="text-gray-700 mb-4">This will only take a moment.</p>
+            <div className="flex justify-center">
+              <div className="h-10 w-10 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin my-5"></div>
+            </div>
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
@@ -101,27 +119,26 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ walletId, onTransactionComp
           </div>
 
           <div className="mb-4">
-            <label htmlFor="bankAccountNumber" className="block text-gray-700 mb-2">Account Number</label>
+            <label htmlFor="accountNumber" className="block text-gray-700 mb-2">Account Number</label>
             <input
               type="text"
-              id="bankAccountNumber"
-              value={bankAccountNumber}
-              onChange={(e) => setBankAccountNumber(e.target.value)}
-              placeholder="Bank account number"
+              id="accountNumber"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              placeholder="Enter bank account number"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="mb-4">
-            <label htmlFor="bankRoutingNumber" className="block text-gray-700 mb-2">Routing Number</label>
+            <label htmlFor="description" className="block text-gray-700 mb-2">Description</label>
             <input
               type="text"
-              id="bankRoutingNumber"
-              value={bankRoutingNumber}
-              onChange={(e) => setBankRoutingNumber(e.target.value)}
-              placeholder="Bank routing number"
-              required
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter description (optional)"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

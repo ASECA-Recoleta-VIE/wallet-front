@@ -67,6 +67,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
   }), [isAuthenticated, login, logout, loading]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen text-xl font-semibold">
+        Loading...
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={contextValue}>
       {children}
