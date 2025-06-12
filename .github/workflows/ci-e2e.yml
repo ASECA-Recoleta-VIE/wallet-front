@@ -71,7 +71,7 @@ jobs:
       - name: Start wallet-back container
         run: |
           docker run -d --name wallet-back \
-            -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/walletdb \
+            -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/walletdb \
             -e SPRING_DATASOURCE_USERNAME=walletuser \
             -e SPRING_DATASOURCE_PASSWORD=walletpassword \
             -p 8080:8080 \
