@@ -15,14 +15,18 @@ describe('Registro de usuario', () => {
   });
 
   it('permite registrar un usuario nuevo', () => {
-    cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-name"]', { timeout: 10000 }).type('Test User');
-    cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-email"]', { timeout: 10000 }).type(`testuser+${Date.now()}@mail.com`);
-    cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-password"]', { timeout: 10000 }).type('Password1!');
-    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).type('Password1!');
+    cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Test User');
+    });
+    cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type(`testuser+${Date.now()}@mail.com`);
+    });
+    cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password1!');
+    });
+    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password1!');
+    });
     cy.get('[data-testid="register-submit"]', { timeout: 10000 }).should('exist').should('be.visible');
     cy.get('[data-testid="register-submit"]', { timeout: 10000 }).click();
     // Verificar toast de éxito
@@ -42,14 +46,18 @@ describe('Registro de usuario', () => {
   });
 
   it('valida que las contraseñas coincidan', () => {
-    cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-name"]', { timeout: 10000 }).type('Test User');
-    cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-email"]', { timeout: 10000 }).type('test@example.com');
-    cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-password"]', { timeout: 10000 }).type('Password1!');
-    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).type('Password2!');
+    cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Test User');
+    });
+    cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('test@example.com');
+    });
+    cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password1!');
+    });
+    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password2!');
+    });
     cy.get('[data-testid="register-submit"]', { timeout: 10000 }).should('exist').should('be.visible');
     cy.get('[data-testid="register-submit"]', { timeout: 10000 }).click();
     // Verificar mensaje de error personalizado

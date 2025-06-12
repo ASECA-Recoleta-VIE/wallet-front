@@ -10,14 +10,18 @@ describe('Login de usuario', () => {
     cy.clearLocalStorage();
     cy.visit('/register');
     cy.url().should('include', '/register');
-    cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-name"]', { timeout: 10000 }).type('Pablo Pagliaricci');
-    cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-email"]', { timeout: 10000 }).clear().type('pablopagliaricci@gmail.com');
-    cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-password"]', { timeout: 10000 }).type('Password1!');
-    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).type('Password1!');
+    cy.get('[data-testid="register-name"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Pablo Pagliaricci');
+    });
+    cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).clear().type('pablopagliaricci@gmail.com');
+    });
+    cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password1!');
+    });
+    cy.get('[data-testid="register-confirm-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password1!');
+    });
     cy.get('[data-testid="register-submit"]', { timeout: 10000 }).should('exist').should('be.visible');
     cy.get('[data-testid="register-submit"]', { timeout: 10000 }).click();
     cy.url().should('include', '/login');
@@ -32,11 +36,13 @@ describe('Login de usuario', () => {
 
   it('permite iniciar sesión correctamente con credenciales válidas', () => {
     cy.visit('/login');
-    cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="login-password"]', { timeout: 10000 }).should('exist').should('be.visible');
+    cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('pablopagliaricci@gmail.com');
+    });
+    cy.get('[data-testid="login-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('Password1!');
+    });
     cy.get('[data-testid="login-submit"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="login-email"]', { timeout: 10000 }).type('pablopagliaricci@gmail.com');
-    cy.get('[data-testid="login-password"]', { timeout: 10000 }).type('Password1!');
     cy.get('[data-testid="login-submit"]', { timeout: 10000 }).click();
     cy.contains('Login successful!', { timeout: 10000 }).should('be.visible');
     cy.url().should('include', '/wallet');
@@ -45,11 +51,13 @@ describe('Login de usuario', () => {
 
   it('muestra error con credenciales inválidas', () => {
     cy.visit('/login');
-    cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="login-password"]', { timeout: 10000 }).should('exist').should('be.visible');
+    cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('usuario@ejemplo.com');
+    });
+    cy.get('[data-testid="login-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
+      cy.wrap($input).type('password_incorrecto');
+    });
     cy.get('[data-testid="login-submit"]', { timeout: 10000 }).should('exist').should('be.visible');
-    cy.get('[data-testid="login-email"]', { timeout: 10000 }).type('usuario@ejemplo.com');
-    cy.get('[data-testid="login-password"]', { timeout: 10000 }).type('password_incorrecto');
     cy.get('[data-testid="login-submit"]', { timeout: 10000 }).click();
     cy.contains('Invalid email or password', { timeout: 10000 }).should('be.visible');
     cy.url().should('include', '/login');

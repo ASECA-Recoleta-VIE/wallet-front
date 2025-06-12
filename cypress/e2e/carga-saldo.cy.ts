@@ -14,12 +14,18 @@ describe('Carga de saldo', () => {
     cy.url().should('include', '/login');
     cy.get('[data-testid="login-email"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="login-email"]', { timeout: 10000 }).type('pablopagliaricci@gmail.com');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('pablopagliaricci@gmail.com');
+      });
     cy.get('[data-testid="login-password"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="login-password"]', { timeout: 10000 }).type('Password1!');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('Password1!');
+      });
     cy.get('[data-testid="login-submit"]', { timeout: 10000 })
       .should('exist')
       .should('be.visible');
@@ -32,12 +38,18 @@ describe('Carga de saldo', () => {
   it('permite cargar saldo correctamente', () => {
     cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).type('100');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('100');
+      });
     cy.get('[data-testid="addfunds-description"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).type('Recarga test');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('Recarga test');
+      });
     cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
       .should('exist')
       .should('be.visible');
@@ -62,12 +74,18 @@ describe('Carga de saldo', () => {
   it('valida monto inválido', () => {
     cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).type('0');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('0');
+      });
     cy.get('[data-testid="addfunds-description"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).type('Recarga test');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('Recarga test');
+      });
     cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
       .should('exist')
       .should('be.visible');
@@ -79,12 +97,18 @@ describe('Carga de saldo', () => {
   it('valida monto negativo', () => {
     cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="addfunds-amount"]', { timeout: 10000 }).type('-10');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('-10');
+      });
     cy.get('[data-testid="addfunds-description"]', { timeout: 10000 })
       .should('exist')
-      .should('be.visible');
-    cy.get('[data-testid="addfunds-description"]', { timeout: 10000 }).type('Recarga test');
+      .should('be.visible')
+      .should('have.length', 1)
+      .then(($input) => {
+        cy.wrap($input).type('Recarga test');
+      });
     cy.get('[data-testid="addfunds-submit"]', { timeout: 10000 })
       .should('exist')
       .should('be.visible');
