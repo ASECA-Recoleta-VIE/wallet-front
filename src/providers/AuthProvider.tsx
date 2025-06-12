@@ -45,8 +45,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkAuth = async () => {
       console.log('AuthProvider: Checking authentication status...');
+      
+      // 🚫 Evitar checkeo automático si estamos en testmode
+      if (window.location.search.includes('testmode=true')) {
+        console.log('AuthProvider: Test mode detected, skipping auth check');
+        setLoading(false);
+        return;
+      }
+  
       try {
-        // Try to fetch wallet data - if successful, user is authenticated
         await WalletService.getWallet();
         console.log('AuthProvider: Wallet fetch successful, user is authenticated');
         setIsAuthenticated(true);
@@ -57,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     };
-
+  
     checkAuth();
   }, []);
 
