@@ -44,11 +44,11 @@ const AddFunds: React.FC<AddFundsProps> = ({ onTransactionComplete }) => {
     }
     setLoading(true);
     try {
-      await WalletService.deposit({
+      await WalletService.withdraw({
         amount: parseFloat(amount),
         description
       });
-      showSuccessToast('Funds added successfully!');
+      showSuccessToast('Funds withdrawn successfully!');
       setAmount('');
       setDescription('');
       setShowErrors(false);
@@ -64,7 +64,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ onTransactionComplete }) => {
   return (
     <div className="max-w-md mx-auto">
         <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Add Funds to Your Wallet</h2>
+          <h2 className="text-xl font-semibold mb-4">Withdraw Funds from Your Wallet</h2>
 
         <FormInput
           id="amount"
@@ -99,7 +99,7 @@ const AddFunds: React.FC<AddFundsProps> = ({ onTransactionComplete }) => {
           className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
             data-testid="addfunds-submit"
           >
-            {loading ? 'Processing...' : 'Add Funds'}
+            {loading ? 'Processing...' : 'Withdraw Funds'}
           </button>
         </form>
     </div>

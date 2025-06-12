@@ -16,7 +16,7 @@ describe('Login de usuario', () => {
       cy.wrap($input).type('Pablo Pagliaricci');
     });
     cy.get('[data-testid="register-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
-      cy.wrap($input).clear().type('pablopagliaricci@gmail.com');
+      cy.wrap($input).clear().type('pablo@gmail.com');
     });
     cy.get('[data-testid="register-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
       cy.wrap($input).type('Password1!');
@@ -41,7 +41,7 @@ describe('Login de usuario', () => {
 
   it('permite iniciar sesión correctamente con credenciales válidas', () => {
     cy.get('[data-testid="login-email"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
-      cy.wrap($input).type('pablopagliaricci@gmail.com');
+      cy.wrap($input).type('pablo@gmail.com');
     });
     cy.get('[data-testid="login-password"]', { timeout: 10000 }).should('exist').should('be.visible').should('have.length', 1).then(($input) => {
       cy.wrap($input).type('Password1!');

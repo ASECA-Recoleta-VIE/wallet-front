@@ -15,7 +15,7 @@ const Header: React.FC = () => {
         <nav className="space-x-4 flex items-center">
           {isAuthenticated ? (
             <>
-              <Link to="/wallet" className="text-gray-700 hover:text-blue-500">My Wallet</Link>
+              <Link to="/wallet" className="text-gray-700 hover:text-blue-500" data-testid="wallet-title">My Wallet</Link>
               <Link to="/transactions" className="text-gray-700 hover:text-blue-500">Transactions</Link>
               <button
                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"

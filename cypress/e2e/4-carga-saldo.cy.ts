@@ -37,11 +37,6 @@ describe('Carga de saldo', () => {
     cy.get('[data-testid="login-submit"]').click();
 
     cy.url({ timeout: 10000 }).should('include', '/wallet');
-
-    cy.contains('Add Funds', { timeout: 10000 })
-      .should('be.visible')
-      .screenshot('add-funds-visible')
-      .click();
   });
 
   it('permite cargar saldo correctamente', () => {
@@ -51,20 +46,15 @@ describe('Carga de saldo', () => {
     cy.get('[data-testid="login-password"]').type('Password1!');
     cy.get('[data-testid="login-submit"]').click();
 
-    cy.get('[data-testid="addfunds-amount"]').type('100');
-    cy.get('[data-testid="addfunds-description"]').type('Recarga test');
-    cy.get('[data-testid="addfunds-submit"]').click();
+    cy.get('[data-testid="request-debin-title"]').click();
 
-    cy.get('body', { timeout: 10000 }).then(($body) => {
-      if ($body.text().includes('Funds added successfully!')) {
-        cy.log('✅ Funds added toast visible');
-      } else {
-        cy.log('❌ Funds added toast NO visible');
-        cy.screenshot('add-funds-toast-fail');
-      }
-    });
+    cy.get('[data-testid="request-debin-amount"]').type('100');
+    cy.get('[data-testid="request-debin-account-number"]').type('account-1');
+    cy.get('[data-testid="request-debin-description"]').type('Recarga test');
+    cy.get('[data-testid="request-debin-submit"]').click();
 
-    cy.get('[data-testid="addfunds-amount"]').should('have.value', '');
-    cy.get('[data-testid="addfunds-description"]').should('have.value', '');
+    // Verificar que el balance se actualiza correctamente
+    cy.contains('Balance:', { timeout: 10000 }).should('be.visible');
+    cy.contains('$100.00', { timeout: 10000 }).should('be.visible');
   });
 });

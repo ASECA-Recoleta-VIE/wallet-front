@@ -83,8 +83,8 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions })
                 >
                   <td className="py-2 px-4">{formatDate(transaction.timestamp)}</td>
                   <td className="py-2 px-4" data-testid="transaction-type">{transaction.type}</td>
-                  <td className={`py-2 px-4 ${transaction.type === 'TRANSFER_OUT' ? 'text-red-600' : 'text-green-600'}`}>
-                    {transaction.type === 'TRANSFER_OUT' ?
+                  <td className={`py-2 px-4 ${transaction.type === 'TRANSFER_OUT' || transaction.type === 'WITHDRAWAL' ? 'text-red-600' : 'text-green-600'}`}>
+                    {transaction.type === 'TRANSFER_OUT' || transaction.type === "WITHDRAWAL" ?
                       <>-${transaction.amount.toFixed(2)}</> :
                       <>+${transaction.amount.toFixed(2)}</>
                     }

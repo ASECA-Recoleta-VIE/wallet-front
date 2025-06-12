@@ -115,6 +115,7 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ onTransactionComplete }) =>
               min="0.01"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              data-testid="request-debin-amount"
             />
           </div>
 
@@ -128,6 +129,7 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ onTransactionComplete }) =>
               placeholder="Enter bank account number"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              data-testid="request-debin-account-number"
             />
           </div>
 
@@ -140,6 +142,7 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ onTransactionComplete }) =>
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter description (optional)"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              data-testid="request-debin-description"
             />
           </div>
 
@@ -147,6 +150,7 @@ const RequestDebin: React.FC<RequestDebinProps> = ({ onTransactionComplete }) =>
             type="submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-blue-300"
+            data-testid="request-debin-submit"
           >
             {loading ? 'Processing...' : 'Submit DEBIN Request'}
           </button>

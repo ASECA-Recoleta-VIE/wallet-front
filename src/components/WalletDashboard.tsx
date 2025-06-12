@@ -62,6 +62,7 @@ const WalletDashboard: React.FC = () => {
         <button
           className={`px-4 py-2 font-medium ${activeTab === 'overview' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('overview')}
+          data-testid="overview-title"
         >
           Overview
         </button>
@@ -69,7 +70,7 @@ const WalletDashboard: React.FC = () => {
           className={`px-4 py-2 font-medium ${activeTab === 'addFunds' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('addFunds')}
         >
-          Add Funds
+          Withdraw Funds
         </button>
         <button
           className={`px-4 py-2 font-medium ${activeTab === 'transfer' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
@@ -80,6 +81,7 @@ const WalletDashboard: React.FC = () => {
         <button
           className={`px-4 py-2 font-medium ${activeTab === 'requestDebin' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
           onClick={() => setActiveTab('requestDebin')}
+           data-testid="request-debin-title"
         >
           Request DEBIN
         </button>
