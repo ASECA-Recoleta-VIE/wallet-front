@@ -13,6 +13,7 @@ describe('Carga de saldo', () => {
     cy.window().then((win) => {
       win.document.cookie = 'token=; Max-Age=0; path=/;';
     });
+    cy.wait(5000);
     cy.visit('/login');
     cy.document().its('readyState').should('eq', 'complete');
     cy.get('body').should('contain.text', 'Login');

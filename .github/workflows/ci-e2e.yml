@@ -72,5 +72,7 @@ jobs:
           url: http://localhost:8080/actuator/health
           timeout: 60
 
+      - name: Eliminar caché previa de Cypress
+        run: rm -rf ~/.cache/Cypress
       - name: Run Cypress tests
         run: npx cypress run
