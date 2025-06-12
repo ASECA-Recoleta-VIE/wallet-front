@@ -77,8 +77,8 @@ jobs:
             -p 8080:8080 \
             ghcr.io/aseca-recoleta-vie/wallet-back:latest-stable
 
-      - name: Print wallet-back logs
-        run: docker logs wallet-back
+      - name: Check if backend container is still running
+        run: docker ps -a
 
       - name: Wait for backend to be ready
         run: |
@@ -87,8 +87,9 @@ jobs:
             curl -X POST http://localhost:8080/auth/login \
               -H "Content-Type: application/json" \
               -d '{"email":"pablopagliaricci@gmail.com", "password":"Password1!"}' \
-              --fail && echo "Backend ready!" && break
+              --fail && break
             echo "Retrying... ($i)"
+            docker logs wallet-back || true
             sleep 5
           done
 
