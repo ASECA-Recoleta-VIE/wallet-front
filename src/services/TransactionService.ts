@@ -1,6 +1,7 @@
 import { Transaction, TransactionStatus, TransactionType } from '../models/types';
 import AuthService from './AuthService';
 import WalletService from './WalletService';
+import axios from '../interceptors/axios';
 
 class TransactionService {
   private static transactions: Transaction[] = [];
@@ -109,34 +110,40 @@ class TransactionService {
   }
 
   async requestDebin(
-    walletId: string,
     amount: number,
-    bankDetails: { accountNumber: string, routingNumber: string }
+    bankDetails: { accountId: string, description: string }
   ): Promise<Transaction | null> {
-    // Create transaction (initially pending)
-    const transaction: Transaction = {
-      id: `tx${TransactionService.transactions.length + 1}`,
-      type: TransactionType.DEBIN_REQUEST,
-      status: TransactionStatus.PENDING,
-      amount,
-      recipientWalletId: walletId,
-      description: `DEBIN request: ${bankDetails.accountNumber.slice(-4)}`,
-      timestamp: new Date(),
-    };
+    try {
+      const API_URL = import.meta.env.VITE_API_URL;
+      const response = await axios.post(`${API_URL}/request-funds`, {
+        amount,
+        accountId: bankDetails.accountId,
+        description: bankDetails.description
+      });
 
-    // Save transaction
-    TransactionService.transactions.push(transaction);
+      // Create transaction based on response
+      const transaction: Transaction = {
+        id: response.data.id || `tx${TransactionService.transactions.length + 1}`,
+        type: TransactionType.DEBIN_REQUEST,
+        status: TransactionStatus.COMPLETED,
+        amount,
+        description: `DEBIN request: ${bankDetails.accountId.slice(-4)}`,
+        timestamp: new Date(),
+      };
 
-    // Simulate async processing
-    setTimeout(async () => {
-      // Update transaction status
-      transaction.status = TransactionStatus.COMPLETED;
+      // Save transaction locally for history
+      TransactionService.transactions.push(transaction);
 
-      // Update wallet balance
-      await WalletService.updateBalance(walletId, amount);
-    }, 2000);
-
-    return transaction;
+      return transaction;
+    } catch (error: any) {
+      console.error('DEBIN request failed:', error);
+      throw new Error(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.response?.data ||
+        'DEBIN request failed'
+      );
+    }
   }
 
   getTransactionsByWalletId(walletId: string): Promise<Transaction[]> {
